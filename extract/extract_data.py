@@ -1,23 +1,44 @@
 import re
+import logging
+
 from pyspark.sql import Window
 from pyspark.sql import functions as F
 from pyspark.sql.types import StructField, StructType, StringType, IntegerType, DoubleType, ByteType
 from pyspark.sql import SparkSession
+from pathlib import Path
 
 spark = SparkSession.builder.getOrCreate()
 
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+    handlers=[
+        logging.FileHandler(PROJECT_ROOT / "pipeline_ingestao_bronze.log", encoding="utf-8"),
+        logging.StreamHandler(),
+    ],
+)
+logger = logging.getLogger(__name__)
+
 # Função para limpar os nomes das colunas
 def limpeza_colunas():
+    logger.info("Criando limpeza de nomes de colunas...")
+
     def clean_column_name(col_name):
         col_name = re.sub(r'[^a-zA-Z0-9]', '_', col_name)  
         col_name = re.sub(r'_{2,}', '_', col_name)  
         col_name = col_name.strip('_') 
-        return col_name.lower()  
+        normalized_name = col_name.lower()
+        logger.debug("Normalized column name %r to %r", col_name, normalized_name)
+        return normalized_name
     
     return clean_column_name
 
 # Bronze Orders
 def bronze_orders(clean_column_name):
+    logger.info("Começando a ingestão de: bronze_orders")
 
     esquema = StructType([
     StructField("order_id", IntegerType(), True),
@@ -43,11 +64,13 @@ def bronze_orders(clean_column_name):
     .mode("overwrite")
     .saveAsTable("workspace.projeto_market_basket.bronze_orders")
     )
+    logger.info("Ingestão completada de: bronze_orders")
  
     return df_bronze_orders
 
 # Bronze Products
 def bronze_products(clean_column_name):
+    logger.info("Começando a ingestão de: bronze_products")
 
     esquema = StructType([
     StructField("product_id", IntegerType(), True),
@@ -70,11 +93,13 @@ def bronze_products(clean_column_name):
     .mode("overwrite")
     .saveAsTable("workspace.projeto_market_basket.bronze_products")
     )
+    logger.info("Ingestão completada de: bronze_products")
 
     return df_bronze_products
 
 # Bronze Aisles
 def bronze_aisles(clean_column_name):
+    logger.info("Começando a ingestão de: bronze_aisles")
 
     esquema = StructType([
     StructField("aisle_id", IntegerType(), True),
@@ -95,11 +120,13 @@ def bronze_aisles(clean_column_name):
     .mode("overwrite")
     .saveAsTable("workspace.projeto_market_basket.bronze_aisles")
     )
+    logger.info("Ingestão completada de: bronze_aisles")
 
     return df_bronze_aisles
 
 # Bronze Departments
 def bronze_departments(clean_column_name):
+    logger.info("Começando a ingestão de: bronze_departments")
 
     esquema = StructType([
     StructField("department_id", IntegerType(), True),
@@ -120,11 +147,13 @@ def bronze_departments(clean_column_name):
     .mode("overwrite")
     .saveAsTable("workspace.projeto_market_basket.bronze_departments")
     )
+    logger.info("Ingestão completada de: bronze_departments")
 
     return df_bronze_departments
 
 # Bronze Order Products Train
 def bronze_order_products_train(clean_column_name):
+    logger.info("Começando a ingestão de: bronze_order_products_train")
 
     esquema = StructType([
     StructField("order_id", IntegerType(), True),
@@ -147,11 +176,13 @@ def bronze_order_products_train(clean_column_name):
     .mode("overwrite")
     .saveAsTable("workspace.projeto_market_basket.bronze_order_products_train")
     )
+    logger.info("Ingestão completada de: bronze_order_products_train")
 
     return df_bronze_order_products_train
 
 # Bronze Order Products Prior
 def bronze_order_products_prior(clean_column_name):
+    logger.info("Começando a ingestão de: bronze_order_products_prior")
 
     esquema = StructType([
     StructField("order_id", IntegerType(), True),
@@ -174,5 +205,6 @@ def bronze_order_products_prior(clean_column_name):
     .mode("overwrite")
     .saveAsTable("workspace.projeto_market_basket.bronze_order_products_prior")
     )
+    logger.info("Ingestão completada de: bronze_order_products_prior")
 
     return df_bronze_order_products_prior
