@@ -1,0 +1,22 @@
+name: market_basket_dbt
+version: "1.0.0"
+config-version: 2
+profile: market_basket_dbt
+
+model-paths: ["models"]
+test-paths: ["tests"]
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+models:
+  market_basket_dbt:
+    staging:
+      +schema: silver
+      +materialized: view
+      rejections:
+        +materialized: table
+        +tags: [silver, rejections]
+    marts:
+      +schema: gold
+      +materialized: table

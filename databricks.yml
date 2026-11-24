@@ -1,0 +1,52 @@
+bundle:
+  name: market-basket-dbt
+
+variables:
+  warehouse_id:
+    description: SQL Warehouse que executa os modelos dbt.
+    default: 130b7fd2feddd258
+  catalog:
+    description: Catalogo Databricks de entrada Bronze e saida Silver/Gold.
+    default: workspace
+  schema:
+    description: Schema Bronze de origem dos modelos dbt.
+    default: projeto_market_basket
+
+resources:
+  jobs:
+    market_basket_dbt:
+      name: market-basket-dbt-${bundle.target}
+      max_concurrent_runs: 1
+      tasks:
+        - task_key: extract_bronze
+          environment_key: dbt_serverless
+          spark_python_task:
+            python_file: ./extract/extract_data.py
+
+        - task_key: build_market_basket
+          depends_on:
+            - task_key: extract_bronze
+          environment_key: dbt_serverless
+          dbt_task:
+            project_directory: ./market_basket_dbt
+            commands:
+              - dbt deps
+              - dbt build
+            warehouse_id: ${var.warehouse_id}
+            catalog: ${var.catalog}
+            schema: ${var.schema}
+
+      environments:
+        - environment_key: dbt_serverless
+          spec:
+            environment_version: "2"
+            dependencies:
+              - "dbt-databricks>=1.6.0,<2.0.0"
+
+      queue:
+        enabled: true
+
+targets:
+  dev:
+    mode: development
+    default: true

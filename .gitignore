@@ -1,1 +1,23 @@
-pipeline_ingestao_bronze.log
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Pytest
+.pytest_cache/
+
+# Local logs and secrets
+*.log
+.env
+.env.*
+!.env.example
+
+# dbt artifacts
+market_basket_dbt/target/
+market_basket_dbt/dbt_packages/
+market_basket_dbt/logs/
+
+# Databricks local state
+.databricks/
+.bundle/

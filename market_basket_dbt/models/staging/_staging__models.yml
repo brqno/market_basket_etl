@@ -1,0 +1,236 @@
+version: 2
+
+models:
+  - name: stg_orders
+    description: Pedidos validos e deduplicados da camada Silver.
+    columns:
+      - name: Order_ID
+        description: Chave natural unica do pedido.
+        data_tests: [not_null, unique]
+      - name: User_ID
+        description: Identificador do usuario associado ao pedido.
+        data_tests: [not_null]
+      - name: Eval_Set
+        description: Particao de avaliacao do pedido.
+      - name: Order_Number
+        description: Numero sequencial do pedido no historico do usuario.
+      - name: Order_DOW
+        description: Dia da semana do pedido, de 0 a 6.
+      - name: Order_Hour_Of_Day
+        description: Hora do dia do pedido.
+      - name: Days_Since_Prior_Order
+        description: Dias desde o pedido anterior.
+      - name: Processed_Data
+        description: Timestamp original de ingestao na Bronze.
+
+  - name: stg_products
+    description: Produtos validos e deduplicados da camada Silver.
+    columns:
+      - name: Product_ID
+        description: Chave natural unica do produto.
+        data_tests: [not_null, unique]
+      - name: Product_Name
+        description: Nome do produto.
+        data_tests: [not_null]
+      - name: Aisle_ID
+        description: Corredor do produto.
+      - name: Department_ID
+        description: Departamento do produto.
+      - name: Processed_Data
+        description: Timestamp original de ingestao na Bronze.
+
+  - name: stg_aisles
+    description: Corredores validos e deduplicados da camada Silver.
+    columns:
+      - name: Aisle_ID
+        description: Chave natural unica do corredor.
+        data_tests: [not_null, unique]
+      - name: Aisle
+        description: Nome do corredor.
+        data_tests: [not_null]
+      - name: Processed_Data
+        description: Timestamp original de ingestao na Bronze.
+
+  - name: stg_departments
+    description: Departamentos validos e deduplicados da camada Silver.
+    columns:
+      - name: Department_ID
+        description: Chave natural unica do departamento.
+        data_tests: [not_null, unique]
+      - name: Department
+        description: Nome do departamento.
+        data_tests: [not_null]
+      - name: Processed_Data
+        description: Timestamp original de ingestao na Bronze.
+
+  - name: stg_order_products_prior
+    description: Itens validos e deduplicados da particao prior.
+    columns:
+      - name: Order_ID
+        description: Parte da chave composta do item do pedido.
+        data_tests: [not_null]
+      - name: Product_ID
+        description: Parte da chave composta do item do pedido.
+        data_tests: [not_null]
+      - name: Add_To_Cart_Order
+        description: Posicao do item no carrinho.
+        data_tests: [not_null]
+      - name: Reordered
+        description: Indicador de recompra.
+        data_tests: [not_null]
+      - name: Processed_Data
+        description: Timestamp original de ingestao na Bronze.
+
+  - name: stg_order_products_train
+    description: Itens validos e deduplicados da particao train.
+    columns:
+      - name: Order_ID
+        description: Parte da chave composta do item do pedido.
+        data_tests: [not_null]
+      - name: Product_ID
+        description: Parte da chave composta do item do pedido.
+        data_tests: [not_null]
+      - name: Add_To_Cart_Order
+        description: Posicao do item no carrinho.
+        data_tests: [not_null]
+      - name: Reordered
+        description: Indicador de recompra.
+        data_tests: [not_null]
+      - name: Processed_Data
+        description: Timestamp original de ingestao na Bronze.
+
+  - name: rej_orders
+    description: Pedidos rejeitados por chaves obrigatorias nulas ou duplicidade.
+    columns:
+      - name: Order_ID
+        description: Identificador do pedido, possivelmente nulo ou duplicado.
+      - name: User_ID
+        description: Identificador do usuario, possivelmente nulo.
+      - name: Eval_Set
+        description: Particao de avaliacao original.
+      - name: Order_Number
+        description: Numero sequencial original do pedido.
+      - name: Order_DOW
+        description: Dia da semana original do pedido.
+      - name: Order_Hour_Of_Day
+        description: Hora original do pedido.
+      - name: Days_Since_Prior_Order
+        description: Intervalo original desde o pedido anterior.
+      - name: Processed_Data
+        description: Timestamp original de ingestao na Bronze.
+      - name: Rejection_Reason
+        description: Motivo padronizado da rejeicao.
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['NULL_REQUIRED_FIELD', 'DUPLICATE_PRIMARY_KEY']
+      - name: Rejected_At
+        description: Timestamp em que o dbt classificou o registro.
+        data_tests: [not_null]
+
+  - name: rej_products
+    description: Produtos rejeitados por identificador/nome nulo ou duplicidade.
+    columns:
+      - name: Product_ID
+        description: Identificador original do produto.
+      - name: Product_Name
+        description: Nome original do produto.
+      - name: Aisle_ID
+        description: Identificador original do corredor.
+      - name: Department_ID
+        description: Identificador original do departamento.
+      - name: Processed_Data
+        description: Timestamp original de ingestao na Bronze.
+      - name: Rejection_Reason
+        description: Motivo padronizado da rejeicao.
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['NULL_REQUIRED_FIELD', 'DUPLICATE_PRIMARY_KEY']
+      - name: Rejected_At
+        description: Timestamp em que o dbt classificou o registro.
+        data_tests: [not_null]
+
+  - name: rej_aisles
+    description: Corredores rejeitados por identificador/nome nulo ou duplicidade.
+    columns:
+      - name: Aisle_ID
+        description: Identificador original do corredor.
+      - name: Aisle
+        description: Nome original do corredor.
+      - name: Processed_Data
+        description: Timestamp original de ingestao na Bronze.
+      - name: Rejection_Reason
+        description: Motivo padronizado da rejeicao.
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['NULL_REQUIRED_FIELD', 'DUPLICATE_PRIMARY_KEY']
+      - name: Rejected_At
+        description: Timestamp em que o dbt classificou o registro.
+        data_tests: [not_null]
+
+  - name: rej_departments
+    description: Departamentos rejeitados por identificador/nome nulo ou duplicidade.
+    columns:
+      - name: Department_ID
+        description: Identificador original do departamento.
+      - name: Department
+        description: Nome original do departamento.
+      - name: Processed_Data
+        description: Timestamp original de ingestao na Bronze.
+      - name: Rejection_Reason
+        description: Motivo padronizado da rejeicao.
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['NULL_REQUIRED_FIELD', 'DUPLICATE_PRIMARY_KEY']
+      - name: Rejected_At
+        description: Timestamp em que o dbt classificou o registro.
+        data_tests: [not_null]
+
+  - name: rej_order_products_prior
+    description: Itens prior rejeitados por campos obrigatorios nulos ou duplicidade.
+    columns:
+      - name: Order_ID
+        description: Identificador original do pedido.
+      - name: Product_ID
+        description: Identificador original do produto.
+      - name: Add_To_Cart_Order
+        description: Posicao original do item no carrinho.
+      - name: Reordered
+        description: Indicador original de recompra.
+      - name: Processed_Data
+        description: Timestamp original de ingestao na Bronze.
+      - name: Rejection_Reason
+        description: Motivo padronizado da rejeicao.
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['NULL_REQUIRED_FIELD', 'DUPLICATE_PRIMARY_KEY']
+      - name: Rejected_At
+        description: Timestamp em que o dbt classificou o registro.
+        data_tests: [not_null]
+
+  - name: rej_order_products_train
+    description: Itens train rejeitados por campos obrigatorios nulos ou duplicidade.
+    columns:
+      - name: Order_ID
+        description: Identificador original do pedido.
+      - name: Product_ID
+        description: Identificador original do produto.
+      - name: Add_To_Cart_Order
+        description: Posicao original do item no carrinho.
+      - name: Reordered
+        description: Indicador original de recompra.
+      - name: Processed_Data
+        description: Timestamp original de ingestao na Bronze.
+      - name: Rejection_Reason
+        description: Motivo padronizado da rejeicao.
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['NULL_REQUIRED_FIELD', 'DUPLICATE_PRIMARY_KEY']
+      - name: Rejected_At
+        description: Timestamp em que o dbt classificou o registro.
+        data_tests: [not_null]

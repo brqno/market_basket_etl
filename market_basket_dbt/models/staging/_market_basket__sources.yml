@@ -1,0 +1,86 @@
+version: 2
+
+sources:
+  - name: market_basket_bronze
+    description: >-
+      Camada Bronze imutavel criada pela ingestao Spark. Registros com problemas
+      de qualidade sao preservados aqui e classificados em Silver pelo dbt.
+    database: workspace
+    schema: projeto_market_basket
+    tables:
+      - name: bronze_orders
+        description: Pedidos com usuario, sequencia e atributos temporais.
+        columns:
+          - name: order_id
+            description: Identificador natural do pedido.
+          - name: user_id
+            description: Identificador do usuario que realizou o pedido.
+          - name: eval_set
+            description: Particao de avaliacao associada ao pedido.
+          - name: order_number
+            description: Posicao do pedido no historico do usuario.
+          - name: order_dow
+            description: Dia da semana do pedido, de 0 a 6.
+          - name: order_hour_of_day
+            description: Hora do dia em que o pedido foi realizado.
+          - name: days_since_prior_order
+            description: Dias desde o pedido anterior do usuario.
+          - name: processed_data
+            description: Timestamp da ingestao na camada Bronze.
+      - name: bronze_products
+        description: Cadastro de produtos e suas classificacoes.
+        columns:
+          - name: product_id
+            description: Identificador natural do produto.
+          - name: product_name
+            description: Nome comercial do produto.
+          - name: aisle_id
+            description: Identificador do corredor associado ao produto.
+          - name: department_id
+            description: Identificador do departamento associado ao produto.
+          - name: processed_data
+            description: Timestamp da ingestao na camada Bronze.
+      - name: bronze_aisles
+        description: Cadastro de corredores de produtos.
+        columns:
+          - name: aisle_id
+            description: Identificador natural do corredor.
+          - name: aisle
+            description: Nome do corredor.
+          - name: processed_data
+            description: Timestamp da ingestao na camada Bronze.
+      - name: bronze_departments
+        description: Cadastro de departamentos de produtos.
+        columns:
+          - name: department_id
+            description: Identificador natural do departamento.
+          - name: department
+            description: Nome do departamento.
+          - name: processed_data
+            description: Timestamp da ingestao na camada Bronze.
+      - name: bronze_order_products_prior
+        description: Produtos associados a pedidos da particao prior.
+        columns:
+          - name: order_id
+            description: Identificador do pedido.
+          - name: product_id
+            description: Identificador do produto comprado.
+          - name: add_to_cart_order
+            description: Posicao em que o produto foi adicionado ao carrinho.
+          - name: reordered
+            description: Indicador se o produto ja havia sido comprado.
+          - name: processed_data
+            description: Timestamp da ingestao na camada Bronze.
+      - name: bronze_order_products_train
+        description: Produtos associados a pedidos da particao train.
+        columns:
+          - name: order_id
+            description: Identificador do pedido.
+          - name: product_id
+            description: Identificador do produto comprado.
+          - name: add_to_cart_order
+            description: Posicao em que o produto foi adicionado ao carrinho.
+          - name: reordered
+            description: Indicador se o produto ja havia sido comprado.
+          - name: processed_data
+            description: Timestamp da ingestao na camada Bronze.

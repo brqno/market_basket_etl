@@ -1,0 +1,94 @@
+version: 2
+
+models:
+  - name: dim_products
+    description: Dimensao Gold de produtos com nomes de corredor e departamento.
+    columns:
+      - name: Product_ID
+        description: Chave unica do produto.
+        data_tests: [not_null, unique]
+      - name: Product_Name
+        description: Nome do produto.
+      - name: Aisle_ID
+        description: Identificador do corredor.
+      - name: Aisle
+        description: Nome do corredor.
+      - name: Department_ID
+        description: Identificador do departamento.
+      - name: Department
+        description: Nome do departamento.
+
+  - name: fct_order_products
+    description: Fato Gold no grao de um produto por pedido, com a particao de origem.
+    columns:
+      - name: Order_ID
+        description: Identificador do pedido.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_orders')
+                field: Order_ID
+      - name: Product_ID
+        description: Identificador do produto do item.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_products')
+                field: Product_ID
+      - name: User_ID
+        description: Identificador do usuario que realizou o pedido.
+      - name: Product_Name
+        description: Nome do produto associado ao item.
+      - name: Aisle_ID
+        description: Identificador do corredor do produto.
+      - name: Aisle
+        description: Nome do corredor do produto.
+      - name: Department_ID
+        description: Identificador do departamento do produto.
+      - name: Department
+        description: Nome do departamento do produto.
+      - name: Add_To_Cart_Order
+        description: Posicao do produto na ordem de adicao ao carrinho.
+      - name: Reordered
+        description: Indicador de recompra do produto.
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: [0, 1]
+      - name: Dataset_Split
+        description: Particao train ou prior que originou o item.
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['prior', 'train']
+
+  - name: fct_orders
+    description: Fato Gold no grao de um pedido, enriquecido com o tamanho da cesta.
+    columns:
+      - name: Order_ID
+        description: Chave unica do pedido.
+        data_tests: [not_null, unique]
+      - name: User_ID
+        description: Identificador do usuario.
+      - name: Eval_Set
+        description: Particao de avaliacao do pedido.
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['prior', 'train', 'test']
+      - name: Order_Number
+        description: Numero sequencial do pedido do usuario.
+      - name: Order_DOW
+        description: Dia da semana do pedido.
+        data_tests:
+          - accepted_values:
+              arguments: {values: [0, 1, 2, 3, 4, 5, 6]}
+      - name: Order_Hour_Of_Day
+        description: Hora do dia do pedido.
+      - name: Days_Since_Prior_Order
+        description: Dias desde o pedido anterior.
+      - name: Product_Count
+        description: Quantidade de itens validos no pedido.
+        data_tests: [not_null]
