@@ -2,6 +2,8 @@
 
 Projeto de engenharia e analise de dados de cestas de compras no Databricks. A ingestao Spark carrega os arquivos CSV na camada Bronze; o dbt valida e transforma os dados em Silver e Gold.
 
+<img width="1242" height="516" alt="Pipeline ETL Market Basket - Databricks - Google Chrome 25_11_2026 09_20_46" src="https://github.com/user-attachments/assets/7cc98332-49a7-4dd4-9d86-9d9aa3a6a64a" />
+
 ## Arquitetura
 
 ```mermaid
